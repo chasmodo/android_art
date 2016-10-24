@@ -566,3 +566,11 @@ include $(art_path)/runtime/openjdkjvm/Android.mk
 #   m art-boot-image ART_BOOT_IMAGE_EXTRA_ARGS=--dump-init-failures=fails.txt
 .PHONY: art-boot-image
 art-boot-image: $(DEFAULT_DEX_PREOPT_BUILT_IMAGE_FILENAME)
+
+.PHONY: art-job-images
+art-job-images: \
+  $(DEFAULT_DEX_PREOPT_BUILT_IMAGE_FILENAME) \
+  $(2ND_DEFAULT_DEX_PREOPT_BUILT_IMAGE_FILENAME) \
+  $(HOST_OUT_EXECUTABLES)/dex2oats \
+  $(HOST_OUT_EXECUTABLES)/dex2oatds \
+  $(HOST_OUT_EXECUTABLES)/profman
