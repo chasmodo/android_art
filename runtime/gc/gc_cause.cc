@@ -37,10 +37,10 @@ const char* PrettyCause(GcCause cause) {
     case kGcCauseAddRemoveAppImageSpace: return "AddRemoveAppImageSpace";
     case kGcCauseClassLinker: return "ClassLinker";
     case kGcCauseJitCodeCache: return "JitCodeCache";
-    default:
-      LOG(FATAL) << "Unreachable";
-      UNREACHABLE();
+    case kGcCauseAddRemoveSystemWeakHolder: return "SystemWeakHolder";
   }
+  LOG(FATAL) << "Unreachable";
+  UNREACHABLE();
 }
 
 std::ostream& operator<<(std::ostream& os, const GcCause& gc_cause) {
