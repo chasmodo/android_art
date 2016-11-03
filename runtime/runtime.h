@@ -180,7 +180,7 @@ class Runtime {
     return compiler_options_;
   }
 
-  void AddCompilerOption(std::string option) {
+  void AddCompilerOption(const std::string& option) {
     compiler_options_.push_back(option);
   }
 
