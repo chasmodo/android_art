@@ -57,7 +57,7 @@ RegionSpace::RegionSpace(const std::string& name, MemMap* mem_map)
   regions_.reset(new Region[num_regions_]);
   uint8_t* region_addr = mem_map->Begin();
   for (size_t i = 0; i < num_regions_; ++i, region_addr += kRegionSize) {
-    regions_[i].Init(i, region_addr, region_addr + kRegionSize);
+    regions_[i] = Region(i, region_addr, region_addr + kRegionSize);
   }
   if (kIsDebugBuild) {
     CHECK_EQ(regions_[0].Begin(), Begin());
@@ -70,6 +70,7 @@ RegionSpace::RegionSpace(const std::string& name, MemMap* mem_map)
     }
     CHECK_EQ(regions_[num_regions_ - 1].End(), Limit());
   }
+  full_region_ = Region();
   DCHECK(!full_region_.IsFree());
   DCHECK(full_region_.IsAllocated());
   current_region_ = &full_region_;
@@ -328,7 +329,7 @@ void RegionSpace::DumpNonFreeRegions(std::ostream& os) {
 void RegionSpace::RecordAlloc(mirror::Object* ref) {
   CHECK(ref != nullptr);
   Region* r = RefToRegion(ref);
-  r->objects_allocated_.FetchAndAddSequentiallyConsistent(1);
+  reinterpret_cast<Atomic<uint64_t>*>(&r->objects_allocated_)->FetchAndAddSequentiallyConsistent(1);
 }
 
 bool RegionSpace::AllocNewTlab(Thread* self) {
@@ -407,8 +408,7 @@ void RegionSpace::AssertAllThreadLocalBuffersAreRevoked() {
 }
 
 void RegionSpace::Region::Dump(std::ostream& os) const {
-  os << "Region[" << idx_ << "]=" << reinterpret_cast<void*>(begin_) << "-"
-     << reinterpret_cast<void*>(Top())
+  os << "Region[" << idx_ << "]=" << reinterpret_cast<void*>(begin_) << "-" << reinterpret_cast<void*>(top_)
      << "-" << reinterpret_cast<void*>(end_)
      << " state=" << static_cast<uint>(state_) << " type=" << static_cast<uint>(type_)
      << " objects_allocated=" << objects_allocated_
